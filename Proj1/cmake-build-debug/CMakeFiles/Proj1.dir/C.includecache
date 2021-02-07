@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/justin/Documents/CSCI 331 - Operating Systems/Projects/Proj1/main.c
+stdio.h
+-
+stdlib.h
+-
+
