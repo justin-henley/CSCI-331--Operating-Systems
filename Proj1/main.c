@@ -374,16 +374,15 @@ void unlinkedDestroy(struct unlinkedPCB *pcbArray, int arraySize, int pcbIndex) 
         // Set older sibling's younger sibling to this pcb's younger sibling.  Works even if no younger sibling
         pcbArray[pcbToDelete->older_sibling].younger_sibling = pcbToDelete->younger_sibling;
     }
+    else {
+        // pcbToDelete is its parent's first child, so first child must be cleared or redirected to the next sibling
+        pcbArray[pcbToDelete->parent].first_child = pcbToDelete->younger_sibling;
+    }
+
     // Fix link between older and younger siblings of pcbToDelete
     if (pcbToDelete->younger_sibling != EMPTY_PCB) {
         // Set younger siblings older sibling to this pcbs older sibling.  Works even if no older sibling
         pcbArray[pcbToDelete->younger_sibling].older_sibling = pcbToDelete->older_sibling;
-    }
-
-    //todo fix the first_child if it is removed but there are more children
-    // Otherwise this PCB is the first child of its parent, remove it from the parent PCB
-    else {
-        pcbArray[pcbToDelete->parent].first_child = EMPTY_PCB;
     }
 
     // Clear the PCB entry, freeing it for later use
