@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-// Used to signify an empty entry in a PCB
-#define EMPTY_PCB -1
+#define EMPTY_PCB -1    // Used to signify an empty entry in a PCB
+#define MIN_PCBS 6      // Used to specify the minimum number of PCBs for the tests to run properly
 
 // * Version One *
 //     • All PCBs are implemented as an array of size n.
@@ -11,56 +11,61 @@
 //     • Each PCB is a structure consisting of only the two fields:
 //      ◦ parent: a PCB index corresponding to the process's creator
 //      ◦ children: a pointer to a linked list, where each list element contains the PCB index of one child process
+
+// Linked list node
 struct Node {
-    int index;
+    int index;  // Index of the child in the PCB array
     struct Node *next;
 };
 
+// Linked-List PCB struct
 struct linkedPCB {
-    int parent;
-    struct Node *children;
+    int parent;             // Index of the parent of this PCB in the PCB array
+    struct Node *children;  // Pointer to a linked list of this nodes children
 };
 
+/* Function:  linkedCreate
+ * -----------------------
+ * Allocates a new PCB in the given PCB array, and sets it as a child of the provided parent
+ *
+ * precondition:    pcbArray has been initialized so that each empty PCB has EMPTY_PCB parent and NULL children
+ *
+ * pcbArray[]:  An initialized array of linkedPCB structs
+ * arraySize:   The size of the pcbArray
+ * parentIndex: The index in pcbArray of the parent of the new PCB being created
+ *
+ * returns:         nothing
+ * postcondition:   A new PCB entry has been created as a child of the given parent
+ */
 void linkedCreate(struct linkedPCB pcbArray[], int arraySize, int parentIndex);
 
-
+/* Function:  linkedDestroy
+ * -----------------------
+ * Removes the given PCB in the given PCB array, and removes it as a child of its parent
+ *
+ * precondition:    The pcb at pcbArray[pcbIndex] has been created
+ *
+ * pcbArray[]:  An initialized array of linkedPCB structs
+ * arraySize:   The size of the pcbArray
+ * pcbIndex: The index in pcbArray of the PCB being destroyed
+ *
+ * returns:         nothing
+ * postcondition:   The specified PCB has been cleared and removed as a child of its parent
+ */
 void linkedDestroy(struct linkedPCB pcbArray[], int arraySize, int pcbIndex);
 
-long linkedTest(int numPCBs, long rounds) {
-    // Create and initialize the empty array of PCBs
-    struct linkedPCB pcbArray[numPCBs];
-    pcbArray[0].parent = 0;
-    pcbArray[0].children = NULL;
-    for (int i = 1; i < numPCBs; i++) {
-        pcbArray[i].parent = EMPTY_PCB;
-        pcbArray[i].children = NULL;
-    }
-
-    // record start time (clicks)
-    clock_t t;
-    t = clock();
-
-    // Run the test
-    for (int i = 0; i < rounds; i++) {
-        // Create children
-        linkedCreate(pcbArray, numPCBs, 0);
-        linkedCreate(pcbArray, numPCBs, 0);
-        linkedCreate(pcbArray, numPCBs, 2);
-        linkedCreate(pcbArray, numPCBs, 3);
-        linkedCreate(pcbArray, numPCBs, 0);
-
-        linkedDestroy(pcbArray, numPCBs, 2); // Destroy all children
-        linkedDestroy(pcbArray, numPCBs, 1);
-        linkedDestroy(pcbArray, numPCBs, 5);
-    }
-
-    // Record clicks elapsed
-    t = clock() - t;
-    // Convert clicks to milliseconds
-    long millis = (long) ((((float) t) / CLOCKS_PER_SEC) * 1000);
-
-    return (long)t;
-}
+/* Function:  linkedTest
+ * -----------------------
+ * Creates a PCB array of numPCBs size, and runs rounds rounds of create and destroy operations on the PCB array
+ *
+ * precondition:    numPCBs > MIN_PCBS and rounds > 0
+ *
+ * numPCBs: The size of the PCB array to be used in the tests
+ * rounds:  The number of rounds of create and destroy cycles
+ *
+ * returns: The runtime in milliseconds to run the specified rounds of create and destroy cycles
+ */
+long linkedTest(int numPCBs, long rounds);
 
 // * Version Two *
 // Version 2 of the same process creation hierarchy uses no linked lists. Instead, each PCB contains the 4 integer
@@ -72,13 +77,51 @@ struct unlinkedPCB {
     int older_sibling;
 };
 
+/*
+ * Function:  unlinkedCreate
+ * -----------------------
+ * Allocates a new PCB in the given PCB array, and sets it as a child of the provided parent.
+ * Does not use linked lists to track relationships.
+ *
+ * precondition:    pcbArray has been initialized so that all fields in empty entries = EMPTY_PCB
+ *
+ * pcbArray[]:  An initialized array of linkedPCB structs
+ * arraySize:   The size of the pcbArray
+ * parentIndex: The index in pcbArray of the parent of the new PCB being created
+ *
+ * returns:         nothing
+ * postcondition:   A new PCB entry has been created as a child of the given parent
+ */
 void unlinkedCreate(struct unlinkedPCB pcbArray[], int arraySize, int parentIndex);
 
+/* Function:  unlinkedDestroy
+ * -----------------------
+ * Removes the given PCB in the given PCB array, and removes it as a child of its parent and as a sibling
+ *     of its older and younger siblings
+ *
+ * precondition:    The pcb at pcbArray[pcbIndex] has been created
+ *
+ * pcbArray[]:  An initialized array of linkedPCB structs
+ * arraySize:   The size of the pcbArray
+ * pcbIndex: The index in pcbArray of the PCB being destroyed
+ *
+ * returns:         nothing
+ * postcondition:   The specified PCB has been cleared, removed as a child of its parent, and removed as a sibling
+ */
 void unlinkedDestroy(struct unlinkedPCB pcbArray[], int arraySize, int pcbIndex);
 
-long unlinkedTest(int numPCBs, long rounds) {
-    return 3;
-}
+/* Function:  unlinkedTest
+ * -----------------------
+ * Creates a PCB array of numPCBs size, and runs rounds rounds of create and destroy operations on the PCB array
+ *
+ * precondition:    numPCBs > MIN_PCBS and rounds > 0
+ *
+ * numPCBs: The size of the PCB array to be used in the tests
+ * rounds:  The number of rounds of create and destroy cycles
+ *
+ * returns: The runtime in milliseconds to run the specified rounds of create and destroy cycles
+ */
+long unlinkedTest(int numPCBs, long rounds);
 
 int main() {
     //printf("Hello, World!\n");
@@ -88,14 +131,14 @@ int main() {
     int numPCBs = 0;
     while (numPCBs < 6) {
         printf("Enter number of PCBs to create for both tests (n>=6): ");
-        scanf("%d", &numPCBs);
+        scanf("%d", &numPCBs); // NOLINT(cert-err34-c)
     }
 
     // Get number of cycles of creation/destruction to run in each test
     long rounds = 0;
     while (rounds < 1) {
         printf("Enter number of rounds of creation/destruction to run for each test (n>0): ");
-        scanf("%ld", &rounds);
+        scanf("%ld", &rounds); // NOLINT(cert-err34-c)
     }
 
     // Call test functions with given size and store the time taken
@@ -159,6 +202,11 @@ void linkedDestroy(struct linkedPCB *pcbArray, int arraySize, int pcbIndex) {
         printf("\nlinkedDestroy called on invalid index. pcbIndex: %d, arraySize: %d", pcbIndex, arraySize);
         return;
     }
+    // Guard clause for trying to destroy an empty PCB
+    if (pcbArray[pcbIndex].parent == EMPTY_PCB) {
+        printf("\nlinkedDestroy called on empty PCB. pcbIndex: %d", pcbIndex);
+        return;
+    }
 
     // Recursively destroy all progeny
     struct Node *childrenHead = pcbArray[pcbIndex].children;
@@ -172,8 +220,7 @@ void linkedDestroy(struct linkedPCB *pcbArray, int arraySize, int pcbIndex) {
             next = curr->next;
             // Destroy the child
             linkedDestroy(pcbArray, arraySize, curr->index);
-            // Free the list node
-            free (curr);
+            // Child frees its own node in its destroy cycle, don't do it here
             // Increment to next node
             curr = next;
         }
@@ -182,8 +229,72 @@ void linkedDestroy(struct linkedPCB *pcbArray, int arraySize, int pcbIndex) {
         pcbArray[pcbIndex].children = NULL;
     }
 
+    // free node from parent's children list
+    struct Node *ParentChildList = pcbArray[pcbArray[pcbIndex].parent].children;
+    if (ParentChildList->index == pcbIndex) {
+        struct Node *next = ParentChildList->next;
+        free (ParentChildList);
+        pcbArray[pcbArray[pcbIndex].parent].children = next;
+    }
+    else {
+        struct Node *prev = ParentChildList;
+        struct Node *curr = ParentChildList->next;
+
+        while (curr != NULL && curr->index != pcbIndex) {
+            prev = curr;
+            curr = prev->next;
+        }
+
+        // remove node from middle of list
+        prev->next = curr->next;
+        // free the removed node
+        free(curr);
+    }
+
     // Clear the PCB entry, freeing it for later use
     pcbArray[pcbIndex].parent = EMPTY_PCB;
+}
+
+long linkedTest(int numPCBs, long rounds) {
+    // Guard clause against invalid arguments
+    if (numPCBs < MIN_PCBS || rounds < 1) {
+        printf("\nCalled to linkedTest passed invalid arguments. numPCBs: %d, rounds: %d", numPCBs, rounds);
+        return -1;
+    }
+
+    // Create and initialize the empty array of PCBs
+    struct linkedPCB pcbArray[numPCBs];
+    pcbArray[0].parent = 0;
+    pcbArray[0].children = NULL;
+    for (int i = 1; i < numPCBs; i++) {
+        pcbArray[i].parent = EMPTY_PCB;
+        pcbArray[i].children = NULL;
+    }
+
+    // record start time (clicks)
+    clock_t t;
+    t = clock();
+
+    // Run the test
+    for (int i = 0; i < rounds; i++) {
+        // Create children
+        linkedCreate(pcbArray, numPCBs, 0);
+        linkedCreate(pcbArray, numPCBs, 0);
+        linkedCreate(pcbArray, numPCBs, 2);
+        linkedCreate(pcbArray, numPCBs, 3);
+        linkedCreate(pcbArray, numPCBs, 0);
+
+        linkedDestroy(pcbArray, numPCBs, 2); // Destroy all children
+        linkedDestroy(pcbArray, numPCBs, 1);
+        linkedDestroy(pcbArray, numPCBs, 5);
+    }
+
+    // Record clicks elapsed
+    t = clock() - t;
+    // Convert clicks to milliseconds
+    long millis = (long) ((((float) t) / CLOCKS_PER_SEC) * 1000);
+
+    return millis;
 }
 
 void unlinkedCreate(struct unlinkedPCB *pcbArray, int arraySize, int parentIndex) {
@@ -226,7 +337,12 @@ void unlinkedCreate(struct unlinkedPCB *pcbArray, int arraySize, int parentIndex
 void unlinkedDestroy(struct unlinkedPCB *pcbArray, int arraySize, int pcbIndex) {
     // Guard clause for invalid pcbIndex
     if (pcbIndex >= arraySize) {
-        printf("unlinkedDestroy called on invalid index");
+        printf("unlinkedDestroy called on invalid index. pcbIndex: %d, arraySize: %d", pcbIndex, arraySize);
+        return;
+    }
+    // Guard clause for trying to destroy an empty PCB
+    if (pcbArray[pcbIndex].parent == EMPTY_PCB) {
+        printf("\nlinkedDestroy called on empty PCB. pcbIndex: %d", pcbIndex);
         return;
     }
 
@@ -253,6 +369,8 @@ void unlinkedDestroy(struct unlinkedPCB *pcbArray, int arraySize, int pcbIndex) 
     if (pcbToDelete->older_sibling != EMPTY_PCB) {
         pcbArray[pcbToDelete->older_sibling].younger_sibling = EMPTY_PCB;
     }
+    // todo you didnt reconnect younger pcbs to older after removing this pcb
+
 
         // Otherwise this PCB is the first child of its parent, remove it from the parent PCB
     else {
@@ -264,4 +382,49 @@ void unlinkedDestroy(struct unlinkedPCB *pcbArray, int arraySize, int pcbIndex) 
     pcbToDelete->first_child = EMPTY_PCB;
     pcbToDelete->older_sibling = EMPTY_PCB;
     pcbToDelete->younger_sibling = EMPTY_PCB;
+}
+
+long unlinkedTest(int numPCBs, long rounds) {
+    // Guard clause against invalid arguments
+    if (numPCBs < MIN_PCBS || rounds < 1) {
+        printf("\nCalled to linkedTest passed invalid arguments. numPCBs: %d, rounds: %d", numPCBs, rounds);
+        return -1;
+    }
+
+    // Create and initialize the empty array of PCBs
+    struct unlinkedPCB pcbArray[numPCBs];
+
+    for (int i = 0; i < numPCBs; i++) {
+        pcbArray[i].parent = EMPTY_PCB;
+        pcbArray[0].younger_sibling = EMPTY_PCB;
+        pcbArray[0].older_sibling = EMPTY_PCB;
+        pcbArray[0].first_child = EMPTY_PCB;
+    }
+    pcbArray[0].parent = 0;  // first node parent is set to self otherwise create will overwrite pcbArray[0]
+
+    // record start time (clicks)
+    clock_t t;
+    t = clock();
+
+    // Run the test
+    for (int i = 0; i < rounds; i++) {
+        // Create children
+        unlinkedCreate(pcbArray, numPCBs, 0);
+        unlinkedCreate(pcbArray, numPCBs, 0);
+        unlinkedCreate(pcbArray, numPCBs, 2);
+        unlinkedCreate(pcbArray, numPCBs, 3);
+        unlinkedCreate(pcbArray, numPCBs, 0);
+
+        unlinkedDestroy(pcbArray, numPCBs, 2); // Destroy all children
+        unlinkedDestroy(pcbArray, numPCBs, 1);
+        unlinkedDestroy(pcbArray, numPCBs, 5);
+    }
+
+    // Record clicks elapsed
+    t = clock() - t;
+    // Convert clicks to milliseconds
+    long millis = (long) ((((float) t) / CLOCKS_PER_SEC) * 1000);
+
+    return millis;
+
 }
