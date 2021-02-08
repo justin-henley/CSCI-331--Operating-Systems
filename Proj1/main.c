@@ -47,7 +47,7 @@ void linkedCreate(struct linkedPCB pcbArray[], int arraySize, int parentIndex);
  *
  * pcbArray[]:  An initialized array of linkedPCB structs
  * arraySize:   The size of the pcbArray
- * pcbIndex: The index in pcbArray of the PCB being destroyed
+ * pcbIndex:    The index in pcbArray of the PCB being destroyed
  *
  * returns:         nothing
  * postcondition:   The specified PCB has been cleared and removed as a child of its parent
@@ -77,8 +77,7 @@ struct unlinkedPCB {
     int older_sibling;
 };
 
-/*
- * Function:  unlinkedCreate
+/* Function:  unlinkedCreate
  * -----------------------
  * Allocates a new PCB in the given PCB array, and sets it as a child of the provided parent.
  * Does not use linked lists to track relationships.
@@ -103,7 +102,7 @@ void unlinkedCreate(struct unlinkedPCB pcbArray[], int arraySize, int parentInde
  *
  * pcbArray[]:  An initialized array of linkedPCB structs
  * arraySize:   The size of the pcbArray
- * pcbIndex: The index in pcbArray of the PCB being destroyed
+ * pcbIndex:    The index in pcbArray of the PCB being destroyed
  *
  * returns:         nothing
  * postcondition:   The specified PCB has been cleared, removed as a child of its parent, and removed as a sibling
@@ -123,6 +122,11 @@ void unlinkedDestroy(struct unlinkedPCB pcbArray[], int arraySize, int pcbIndex)
  */
 long unlinkedTest(int numPCBs, long rounds);
 
+
+/*
+ * Prompts a user for a given number of PCBs to create, and a given number of rounds of create/destroy cycles to run
+ * Displays the runtime of both linked and unlinked PCB versions, and the difference between the two
+ */
 int main() {
     //printf("Hello, World!\n");
     //return 0;
@@ -367,12 +371,17 @@ void unlinkedDestroy(struct unlinkedPCB *pcbArray, int arraySize, int pcbIndex) 
 
     // Disconnect the older sibling of this PCB if it has one
     if (pcbToDelete->older_sibling != EMPTY_PCB) {
-        pcbArray[pcbToDelete->older_sibling].younger_sibling = EMPTY_PCB;
+        // Set older sibling's younger sibling to this pcb's younger sibling.  Works even if no younger sibling
+        pcbArray[pcbToDelete->older_sibling].younger_sibling = pcbToDelete->younger_sibling;
     }
-    // todo you didnt reconnect younger pcbs to older after removing this pcb
+    // Fix link between older and younger siblings of pcbToDelete
+    if (pcbToDelete->younger_sibling != EMPTY_PCB) {
+        // Set younger siblings older sibling to this pcbs older sibling.  Works even if no older sibling
+        pcbArray[pcbToDelete->younger_sibling].older_sibling = pcbToDelete->older_sibling;
+    }
 
-
-        // Otherwise this PCB is the first child of its parent, remove it from the parent PCB
+    //todo fix the first_child if it is removed but there are more children
+    // Otherwise this PCB is the first child of its parent, remove it from the parent PCB
     else {
         pcbArray[pcbToDelete->parent].first_child = EMPTY_PCB;
     }
