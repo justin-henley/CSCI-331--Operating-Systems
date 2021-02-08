@@ -436,3 +436,38 @@ long unlinkedTest(int numPCBs, long rounds) {
     return millis;
 
 }
+
+
+/*
+ TEST RUNS
+ -------------------------------------
+ Run 1
+ -------------------------------------
+ Enter number of PCBs to create for both tests (n>=6): 100
+ Enter number of rounds of creation/destruction to run for each test (n>0): 1000000
+
+ Version 1 used 163 milliseconds
+ Version 2 used 97 milliseconds
+ Version 1 is 66 milliseconds slower
+
+ -------------------------------------
+ Run 2
+ -------------------------------------
+ Enter number of PCBs to create for both tests (n>=6): 10
+ Enter number of rounds of creation/destruction to run for each test (n>0): 1000000
+
+ Version 1 used 169 milliseconds
+ Version 2 used 95 milliseconds
+ Version 1 is 74 milliseconds slower
+
+ -------------------------------------
+ Run 3
+ -------------------------------------
+ Enter number of PCBs to create for both tests (n>=6): 100
+ Enter number of rounds of creation/destruction to run for each test (n>0): 10000000
+
+ Version 1 used 1481 milliseconds
+ Version 2 used 956 milliseconds
+ Version 1 is 525 milliseconds slower
+
+ */
