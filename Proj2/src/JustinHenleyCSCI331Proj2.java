@@ -1,26 +1,32 @@
+// Project 2:   Bounded Buffer Problem
+// Description: Demonstrates multithreading and threadsafe implementation of the bounded buffer problem
+// Author:      Justin Henley, jahenley@mail.fhsu.edu
+// Date:        2021-03-09
+
+// Notes:   - Version with race conditions is included in a block comment at the bottom.  I wasn't
+//              sure if that should be included or not.
+
 import java.util.Random;
 import java.util.concurrent.Semaphore;
 
 public class JustinHenleyCSCI331Proj2 {
-    // Buffer size
-    public static final int BUFF_SIZE = 100;
-    // Maximum operations by a thread on each wake cycle
-    public static final int MAX_OPS = 200;
-    // Maximum sleep time by a thread between wake cycles
-    public static final long MAX_SLEEP = 10;
-    // Maximum wake cycles for Producer and Consumer
-    public static final int MAX_WAKE = 50;
-
-
+    public static final int BUFF_SIZE = 100;    // Buffer size (n)
+    public static final int MAX_OPS = 200;      // Maximum operations by a thread on each wake cycle (k)
+    public static final long MAX_SLEEP = 10;    // Maximum sleep time by a thread between wake cycles (t)
+    public static final int MAX_WAKE = 50;      // Maximum wake cycles for Consumer (Program exits after MAX_WAKE Consumer cycles)
 
     public static void main(String[] args) {
+        // Create the buffer shared by producer and consumer
         int[] buffer = new int[BUFF_SIZE];
+        // Semaphores for tracking empty and full slots, controlling access to the buffer
         Semaphore fullSlots = new Semaphore(0);
         Semaphore emptySlots = new Semaphore(BUFF_SIZE);
 
+        // Create new Producer and Consumer thread instances
         Producer producer = new Producer(buffer, MAX_OPS, MAX_SLEEP, MAX_WAKE, fullSlots, emptySlots);
         Consumer consumer = new Consumer(buffer, MAX_OPS, MAX_SLEEP, MAX_WAKE, fullSlots, emptySlots);
 
+        // Start execution of producer and consumer
         producer.start();
         consumer.start();
     }
