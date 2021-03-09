@@ -1,8 +1,5 @@
-import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
-
-import static java.lang.Thread.sleep;
 
 public class JustinHenleyCSCI331Proj2 {
     // Buffer size
@@ -11,6 +8,8 @@ public class JustinHenleyCSCI331Proj2 {
     public static final int MAX_OPS = 200;
     // Maximum sleep time by a thread between wake cycles
     public static final long MAX_SLEEP = 10;
+    // Maximum wake cycles for Producer and Consumer
+    public static final int MAX_WAKE = 50;
 
 
 
@@ -19,37 +18,26 @@ public class JustinHenleyCSCI331Proj2 {
         Semaphore fullSlots = new Semaphore(0);
         Semaphore emptySlots = new Semaphore(BUFF_SIZE);
 
-        Producer producer = new Producer(buffer, MAX_OPS, MAX_SLEEP, fullSlots, emptySlots);
-        Consumer consumer = new Consumer(buffer, MAX_OPS, MAX_SLEEP, fullSlots, emptySlots);
+        Producer producer = new Producer(buffer, MAX_OPS, MAX_SLEEP, MAX_WAKE, fullSlots, emptySlots);
+        Consumer consumer = new Consumer(buffer, MAX_OPS, MAX_SLEEP, MAX_WAKE, fullSlots, emptySlots);
+
         producer.start();
         consumer.start();
-
-        while (consumer.isAlive() && producer.isAlive()) {
-            System.out.println("Waiting on producer and consumer");
-            try {
-                //noinspection BusyWait
-                sleep(MAX_SLEEP);
-
-            }
-            catch (Exception e) {
-                System.out.println("eh?");
-            }
-
-        }
-        System.out.println("Finished!");
     }
 }
 
 abstract class ProdCons extends Thread {
     private final int maxOps;
     private final long maxSleep;
+    protected final int maxWake;
     protected Semaphore fullSlots;
     protected Semaphore emptySlots;
     private Random rand;
 
-    public ProdCons(int maxOps, long maxSleep, Semaphore fullSlots, Semaphore emptySlots) {
+    public ProdCons(int maxOps, long maxSleep, int maxWake, Semaphore fullSlots, Semaphore emptySlots) {
         this.maxOps = maxOps;
         this.maxSleep = maxSleep;
+        this.maxWake = maxWake;
         this.fullSlots = fullSlots;
         this.emptySlots = emptySlots;
         this.rand = new Random();
@@ -65,18 +53,17 @@ abstract class ProdCons extends Thread {
 
 class Producer extends ProdCons {
     private int next_in;
-    private int[] buffer;
+    private final int[] buffer;
 
-    public Producer(int[] buffer, int maxOps, long maxSleep, Semaphore fullSlots, Semaphore emptySlots) {
-        super(maxOps, maxSleep, fullSlots, emptySlots);
+    public Producer(int[] buffer, int maxOps, long maxSleep, int maxWake, Semaphore fullSlots, Semaphore emptySlots) {
+        super(maxOps, maxSleep, maxWake, fullSlots, emptySlots);
         this.next_in = 0;
         this.buffer = buffer;
     }
 
     public void run() {
         try {
-            //noinspection InfiniteLoopStatement
-            while(true) {
+            while (true) {
                 int k1 = getOps();
                 for(int i = 0; i < k1; i++) {
                     emptySlots.acquire();
@@ -87,7 +74,7 @@ class Producer extends ProdCons {
                     fullSlots.release();
                 }
                 next_in = (next_in + k1) % buffer.length;
-
+                System.out.println("Producer OK");
                 //noinspection BusyWait
                 sleep(getSleep());
             }
@@ -101,19 +88,17 @@ class Producer extends ProdCons {
 
 class Consumer extends ProdCons {
     private int next_out;
-    private int[] buffer;
+    private final int[] buffer;
 
-    public Consumer(int[] buffer, int maxOps, long maxSleep, Semaphore fullSlots, Semaphore emptySlots) {
-        super(maxOps, maxSleep, fullSlots, emptySlots);
+    public Consumer(int[] buffer, int maxOps, long maxSleep, int maxWake, Semaphore fullSlots, Semaphore emptySlots) {
+        super(maxOps, maxSleep, maxWake, fullSlots, emptySlots);
         this.next_out = 0;
         this.buffer = buffer;
     }
 
     public void run() {
         try {
-            //noinspection InfiniteLoopStatement
-            while (true) {
-                //noinspection BusyWait
+            for (int wakeCycles = 0; wakeCycles < maxWake; wakeCycles++) {
                 sleep(getSleep());
                 int k2 = getOps();
                 for (int i = 0; i < k2; i++) {
@@ -125,7 +110,11 @@ class Consumer extends ProdCons {
                     emptySlots.release();
                 }
                 next_out = (next_out + k2) % buffer.length;
+                System.out.println("Consumer OK: " + wakeCycles);
             }
+
+            System.out.println("Consumer exits system without any race problems");
+            System.exit(0);
         }
         catch (Exception e) {
             System.out.println("Exception in Consumer: " + e);
