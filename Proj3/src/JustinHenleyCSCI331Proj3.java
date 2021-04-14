@@ -70,4 +70,36 @@ class systemRepresentation {
         currentUnitsAvailable = unitsOfEachResource.clone();
         currentClaims = new int[numberOfProcesses][numberOfResources];
     }
+
+    public boolean request(int processNumber, int resourceNumber, int unitsRequested) {
+        // TODO
+
+        // Check if quantity requested of resource is available
+        if (currentUnitsAvailable[resourceNumber] < unitsRequested) {
+            return false;
+        }
+        // Check if request exceeds max claim of process
+        if (currentClaims[processNumber][resourceNumber] + unitsRequested > maxClaimsOfProcesses[processNumber][resourceNumber]) {
+            return false;
+        }
+
+        //
+
+        // TODO remove this return stub
+        return false;
+    }
+
+    public boolean release(int processNumber, int resourceNumber, int unitsReleased) {
+        // TODO
+
+        // Check if quantity of resource to release is actually claimed by process
+        if (currentClaims[processNumber][resourceNumber] < unitsReleased) {
+            return false;
+        }
+
+        // Release the units
+        currentClaims[processNumber][resourceNumber] -= unitsReleased;
+        currentUnitsAvailable[resourceNumber] += unitsReleased;
+        return true;
+    }
 }
