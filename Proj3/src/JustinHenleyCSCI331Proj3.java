@@ -22,7 +22,7 @@ public class JustinHenleyCSCI331Proj3 {
         // Array to hold the # of units within each resource
         int[] resourceUnits = new int[resources];
         // Array to hold the max claim of each process
-        int[] maxClaims = new int[processes];
+        int[][] maxClaims = new int[processes][resources];
 
         // Prompt for resource units
         for (int i = 0; i < resources; i++) {
@@ -35,9 +35,12 @@ public class JustinHenleyCSCI331Proj3 {
         // Prompt for max claims
         for (int i = 0; i < processes; i++) {
             System.out.println("Please specify the maximum claim of Process #" + i);
-            while (maxClaims[i] <= 0) {
-                // Force positive value
-                maxClaims[i] = input.nextInt();
+            for (int j = 0; j < resources; j++) {
+                System.out.println("Resource #" + j + ":");
+                while (maxClaims[i][j] <= 0) {
+                    // Force positive value
+                    maxClaims[i][j] = input.nextInt();
+                }
             }
         }
 
@@ -51,7 +54,20 @@ public class JustinHenleyCSCI331Proj3 {
 }
 
 class systemRepresentation {
-    public systemRepresentation(int processes, int resources, int[] resourcesUnits, int[] maxClaims) {
+    private int numberOfProcesses;
+    private int numberOfResources;
+    private int[] unitsOfEachResource;
+    private int[][] maxClaimsOfProcesses;
+    private int[] currentUnitsAvailable;
+    private int[][] currentClaims;
 
+    public systemRepresentation(int numberOfProcesses, int numberOfResources, int[] unitsOfEachResource, int[][] maxClaimsOfProcesses) {
+        this.numberOfProcesses = numberOfProcesses;
+        this.numberOfResources = numberOfResources;
+        this.unitsOfEachResource = unitsOfEachResource;
+        this.maxClaimsOfProcesses = maxClaimsOfProcesses;
+
+        currentUnitsAvailable = unitsOfEachResource.clone();
+        currentClaims = new int[numberOfProcesses][numberOfResources];
     }
 }
