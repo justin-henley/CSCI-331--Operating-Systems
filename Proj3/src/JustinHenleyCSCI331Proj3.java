@@ -1,5 +1,8 @@
+// TODO comment
+
 import java.util.Scanner;
 
+// TODO comment
 public class JustinHenleyCSCI331Proj3 {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
@@ -60,7 +63,8 @@ public class JustinHenleyCSCI331Proj3 {
             }
         }
     }
-    
+
+    // TODO comment
     private static void promptSession() {
         System.out.println("\nSystem representation created, you may begin making requests or releases.");
         System.out.println("To make a request, type request(i,j,k)");
@@ -69,6 +73,7 @@ public class JustinHenleyCSCI331Proj3 {
         System.out.println("Type exit to end program");
     }
 
+    // TODO comment
     private static String entryParser(String entry, systemRepresentation state) {
         // Tokenize input string to separate expected arguments
         String[] entrySplit = entry.split("[(\\(,\\)]+");
@@ -105,6 +110,7 @@ public class JustinHenleyCSCI331Proj3 {
     }
 }
 
+// TODO comment
 class systemRepresentation {
     private int numberOfProcesses;
     private int numberOfResources;
@@ -125,8 +131,8 @@ class systemRepresentation {
 
     // TODO block comment
     private boolean checkValid(int processNumber, int resourceNumber) {
-        boolean processValid = (processNumber < 0 || processNumber > numberOfProcesses - 1);
-        boolean resourceValid = (resourceNumber < 0 || resourceNumber > numberOfResources - 1);
+        boolean processValid = !(processNumber < 0 || processNumber > numberOfProcesses - 1);
+        boolean resourceValid = !(resourceNumber < 0 || resourceNumber > numberOfResources - 1);
         return processValid && resourceValid;
     }
 
