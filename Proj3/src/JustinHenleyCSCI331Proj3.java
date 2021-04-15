@@ -1,13 +1,55 @@
-// TODO comment
+/*
+Project 3:      Banker's Algorithm
+Description:    Demonstrates use of claim graphs and implementation of the banker's algorithm
+Author:         Justin Henley, jahenley@mail.fhsu.edu
+Date:           2021-04-15
+ */
+
+// TODO SAMPLE RUN
 
 import java.util.Scanner;
 
-// TODO comment
+// Main class drives the interactive program
 public class JustinHenleyCSCI331Proj3 {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
 
         // Read in initial conditions of system
+        Object[] init = new Object[4];
+        promptInitialState(init);
+        int processes = (int) init[0];
+        int resources = (int) init[1];
+        int[] resourceUnits = (int[]) init[2];
+        int[][] maxClaims = (int[][]) init[3];
+
+        // Create a new representation of the system
+        systemRepresentation state = new systemRepresentation(processes, resources, resourceUnits, maxClaims);
+        // Create a deadlock-reachable representation for proving the Banker's algorithm is working
+        // resourceUnits and maxClaims must be cloned to avoid state and dead-state aliasing the same array in memory
+        deadlockSystem deadState = new deadlockSystem(processes, resources, resourceUnits.clone(), maxClaims.clone());
+
+        // Begin an interactive session with user
+        // Print the instructions prompt before allowing input
+        promptSession();
+        String entry = "";
+        // Continue reading inputs until 'exit' command
+        while(!entry.equals("exit")) {
+            entry = input.next();
+            if (!entry.equals("exit")) {
+                // Attempt to execute the command and print the result
+                System.out.println(entryParser(entry, state, deadState));
+            }
+        }
+    }
+
+    // Prompts the user for the initial state of the system, and returns the initialization information
+    // in an Object array.
+    // Precondition: init is an Object array of length 4
+    // Postcondition: init contains the initial state of the system
+    private static void promptInitialState(Object[] init) {
+        // Create a local scanner instance
+        Scanner input = new Scanner(System.in);
+
         // Prompt for # of processes and resources
         int processes = 0, resources = 0;
 
@@ -47,27 +89,14 @@ public class JustinHenleyCSCI331Proj3 {
             }
         }
 
-        // Create a new representation of the system
-        systemRepresentation state = new systemRepresentation(processes, resources, resourceUnits, maxClaims);
-        // Create a deadlock-reachable representation for proving the Banker's algorithm is working
-        // resourceUnits and maxClaims must be cloned to avoid state and dead-state aliasing the same array in memory
-        deadlockSystem deadState = new deadlockSystem(processes, resources, resourceUnits.clone(), maxClaims.clone());
-
-        // Begin an interactive session with user
-        // Print the instructions prompt before allowing input
-        promptSession();
-        String entry = "";
-        // Continue reading inputs until 'exit' command
-        while(!entry.equals("exit")) {
-            entry = input.next();
-            if (!entry.equals("exit")) {
-                // Attempt to execute the command and print the result
-                System.out.println(entryParser(entry, state, deadState));
-            }
-        }
+        // Store values into init array to pass back to main
+        init[0] = processes;
+        init[1] = resources;
+        init[2] = resourceUnits;
+        init[3] = maxClaims;
     }
 
-    // TODO comment
+    // Prompts the user with instructions before the interactive session starts
     private static void promptSession() {
         System.out.println("\nSystem representation created, you may begin making requests or releases.");
         System.out.println("To make a request, type request(i,j,k)");
@@ -76,7 +105,9 @@ public class JustinHenleyCSCI331Proj3 {
         System.out.println("Type exit to end program");
     }
 
-    // TODO comment
+    // Parses the entry string from the user, and executes any valid commands with the given state and deadState
+    // Preconditions: state and deadState have been initialized with the same initial state
+    // Postcondition:  Returns a string communicating the result of the given command
     private static String entryParser(String entry, systemRepresentation state, deadlockSystem deadState) {
         // Tokenize input string to separate expected arguments
         String[] entrySplit = entry.split("[(\\(,\\)]+");
@@ -115,13 +146,14 @@ public class JustinHenleyCSCI331Proj3 {
     }
 }
 
-// TODO comment
+// Represents a system of processes and resources and provides for requests and releases of resources
+// Uses the Banker's Algorithm to ensure only safe states are reached
 class systemRepresentation {
-    private int numberOfProcesses;
-    private int numberOfResources;
-    private int[][] maxClaimsOfProcesses;
-    private int[] currentUnitsAvailable;
-    private int[][] currentAllocation;
+    protected int numberOfProcesses;
+    protected int numberOfResources;
+    protected int[][] maxClaimsOfProcesses;
+    protected int[] currentUnitsAvailable;
+    protected int[][] currentAllocation;
 
     public systemRepresentation(int numberOfProcesses, int numberOfResources, int[] currentUnitsAvailable, int[][] maxClaimsOfProcesses) {
         this.numberOfProcesses = numberOfProcesses;
@@ -131,14 +163,18 @@ class systemRepresentation {
         currentAllocation = new int[numberOfProcesses][numberOfResources];
     }
 
-    // TODO block comment
-    private boolean checkValid(int processNumber, int resourceNumber) {
+    // Checks that the process and resource number from a given command are within the valid ranges
+    // Precondition: numberOfProcesses and numberOfResources are both positive
+    // Postcondition: returns true if both processNumber and resourceNumber are valid indices
+    protected boolean checkValid(int processNumber, int resourceNumber) {
         boolean processValid = !(processNumber < 0 || processNumber > numberOfProcesses - 1);
         boolean resourceValid = !(resourceNumber < 0 || resourceNumber > numberOfResources - 1);
         return processValid && resourceValid;
     }
 
-    // TODO block comment
+    // Attempts to complete a request by processNumber for unitsRequested units of resourceNumber
+    // Postcondition: currentAllocation and currentUnitsAvailable are updated if the new state is determined safe
+    //                returns a string detailing the result of the request attempt
     public String request(int processNumber, int resourceNumber, int unitsRequested) {
         // Check for valid resource and process indices
         if (!checkValid(processNumber, resourceNumber))
@@ -166,7 +202,9 @@ class systemRepresentation {
         return "Request denied: Unsafe state";
     }
 
-    // TODO comment
+    // Releases unitsReleased units of resourceNumber held by processNumber
+    // Postconditions: currentAllocation and currentUnitsAvailable are updated
+    //                 returns a string detailing the result of the release attempt
     public String release(int processNumber, int resourceNumber, int unitsReleased) {
         // Check for valid resource and process indices
         if (!checkValid(processNumber, resourceNumber))
@@ -183,7 +221,8 @@ class systemRepresentation {
         return "Release successful.";
     }
 
-    // TODO comment
+    // Checks if the current state is safe under the Banker's Algorithm
+    // Postcondition: returns true if the state is safe from deadlock
     public boolean isSafeState() {
         // A copy of available units to pass to needLess
         int [] free = currentUnitsAvailable.clone();
@@ -217,7 +256,8 @@ class systemRepresentation {
         return true;
     }
 
-    // TODO comment
+    // Checks if a process is reducible
+    // Postcondition: Returns true if the process is reducible
     public boolean needLess(int process, int[] free) {
         // If a needed resource is not available, return false
         for (int resource = 0; resource < numberOfResources; resource++) {
@@ -230,24 +270,14 @@ class systemRepresentation {
     }
 }
 
-// TODO comment
-class deadlockSystem {
-    private int numberOfProcesses;
-    private int numberOfResources;
-    private int[] resourceUnitsAvailable;
-    private int[][] maxClaimsOfProcesses;
-    private int[][] currentAllocation;
-
-    // todo comment
+// Extends systemRepresentation to create an unsafe system representation that allows for and detects deadlock
+class deadlockSystem extends systemRepresentation {
     public deadlockSystem(int numberOfProcesses, int numberOfResources, int[] resourceUnitsAvailable, int[][] maxClaimsOfProcesses) {
-        this.numberOfProcesses = numberOfProcesses;
-        this.numberOfResources = numberOfResources;
-        this.resourceUnitsAvailable = resourceUnitsAvailable;
-        this.maxClaimsOfProcesses = maxClaimsOfProcesses;
-        this.currentAllocation = new int[numberOfProcesses][numberOfResources];
+        super(numberOfProcesses, numberOfResources, resourceUnitsAvailable, maxClaimsOfProcesses);
     }
 
-    // todo comment
+    // Determines if the current state is a deadlocked state
+    // Postcondition: Returns true if the current state is deadlocked
     public boolean isDeadlocked() {
         // If a process cannot finish even if given all resources, then the system is deadlocked
         int count = 0; // Number of processes that cannot finish
@@ -257,7 +287,7 @@ class deadlockSystem {
             deadlockDetected = false;
             // Iterate over each resource for process
             for(int j = 0; !deadlockDetected && j < numberOfResources; j++) {
-                if(maxClaimsOfProcesses[i][j] - currentAllocation[i][j] > resourceUnitsAvailable[j])
+                if(maxClaimsOfProcesses[i][j] - currentAllocation[i][j] > currentUnitsAvailable[j])
                     deadlockDetected = true;  // This process cannot be released
             }
             if (deadlockDetected)
@@ -267,13 +297,6 @@ class deadlockSystem {
         return count == numberOfProcesses;
     }
 
-    // Exact copy of checkValid from systemRepresentation
-    private boolean checkValid(int processNumber, int resourceNumber) {
-        boolean processValid = !(processNumber < 0 || processNumber > numberOfProcesses - 1);
-        boolean resourceValid = !(resourceNumber < 0 || resourceNumber > numberOfResources - 1);
-        return processValid && resourceValid;
-    }
-
     // A copy of request from systemRepresentation, but only speaks up when deadlock is found
     public String request(int processNumber, int resourceNumber, int unitsRequested) {
         // Check for valid resource and process indices
@@ -281,7 +304,7 @@ class deadlockSystem {
             return "";
 
         // Check if quantity requested of resource is available
-        if (resourceUnitsAvailable[resourceNumber] < unitsRequested) {
+        if (currentUnitsAvailable[resourceNumber] < unitsRequested) {
             return "";
         }
         // Check if request exceeds max claim of process
@@ -291,7 +314,7 @@ class deadlockSystem {
 
         // Grant the request temporarily
         // Update available resources
-        resourceUnitsAvailable[resourceNumber] -= unitsRequested;
+        currentUnitsAvailable[resourceNumber] -= unitsRequested;
         // Update current allocation
         currentAllocation[processNumber][resourceNumber] += unitsRequested;
 
@@ -300,20 +323,16 @@ class deadlockSystem {
         else return "";
     }
 
-    // Copy of release from systemRepresentation, but with no return value since it doesn't need to communicate with user
-    public void release(int processNumber, int resourceNumber, int unitsReleased) {
-        // Check for valid resource and process indices
-        if (!checkValid(processNumber, resourceNumber))
-            return;
-
-        // Check if quantity of resource to release is actually claimed by process
-        if (currentAllocation[processNumber][resourceNumber] < unitsReleased) {
-            return;
+    // Copy of release from systemRepresentation, but return value is always "" since it doesn't need to communicate with user
+    public String release(int processNumber, int resourceNumber, int unitsReleased) {
+        // Check for valid resource and process indices, and if  quantity of resource to release is actually claimed by process
+        if (checkValid(processNumber, resourceNumber) && currentAllocation[processNumber][resourceNumber] >= unitsReleased) {
+            // Release the units
+            currentAllocation[processNumber][resourceNumber] -= unitsReleased;
+            currentUnitsAvailable[resourceNumber] += unitsReleased;
         }
-
-        // Release the units
-        currentAllocation[processNumber][resourceNumber] -= unitsReleased;
-        resourceUnitsAvailable[resourceNumber] += unitsReleased;
+        return "";
     }
-
 }
+
+// TODO sample run
