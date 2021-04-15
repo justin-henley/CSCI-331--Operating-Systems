@@ -217,7 +217,7 @@ class systemRepresentation {
             if (maxClaimsOfProcesses[process][resource] - currentAllocation[process][resource] > free[resource]) {
                 return false; // Not enough of resource to meet max claim of process
             }
-            return true; // Process is reducible
         }
+        return true; // Process is reducible
     }
 }
