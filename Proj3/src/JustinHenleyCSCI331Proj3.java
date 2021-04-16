@@ -335,4 +335,157 @@ class deadlockSystem extends systemRepresentation {
     }
 }
 
-// TODO sample run
+// SAMPLE RUNS
+
+// The 5.3.3 Participation Activity state example
+/*
+Enter the number of processes:
+3
+Enter the number of resources:
+2
+Please specify the number of units for Resource #0
+2
+Please specify the number of units for Resource #1
+3
+Please specify the maximum claim of Process #0
+Resource #0:
+2
+Resource #1:
+1
+Please specify the maximum claim of Process #1
+Resource #0:
+2
+Resource #1:
+2
+Please specify the maximum claim of Process #2
+Resource #0:
+2
+Resource #1:
+2
+
+System representation created, you may begin making requests or releases.
+To make a request, type request(i,j,k)
+To make a release, type release(i,j,k)
+i = a process number, j = a resource number, k = # of units of resource j requested or released.
+Type exit to end program
+request(0,1,1)
+Request successful
+request(2,1,2)
+Request successful
+request(1,0,1)
+Request denied: Unsafe state ** Deadlock detected in unsafe version **
+request(0,0,1)
+Request successful ** Deadlock detected in unsafe version **
+release(0,0,1)
+Release successful.
+release(0,1,1)
+Release successful.
+release(2,1,2)
+Release successful.
+exit
+
+Process finished with exit code 0
+ */
+
+// Participation activity 5.3.9 example
+/*
+Enter the number of processes:
+4
+Enter the number of resources:
+3
+Please specify the number of units for Resource #0
+1
+Please specify the number of units for Resource #1
+1
+Please specify the number of units for Resource #2
+1
+Please specify the maximum claim of Process #0
+Resource #0:
+1
+Resource #1:
+1
+Resource #2:
+0
+Please specify the maximum claim of Process #1
+Resource #0:
+0
+Resource #1:
+1
+Resource #2:
+1
+Please specify the maximum claim of Process #2
+Resource #0:
+1
+Resource #1:
+1
+Resource #2:
+0
+Please specify the maximum claim of Process #3
+Resource #0:
+0
+Resource #1:
+0
+Resource #2:
+1
+
+System representation created, you may begin making requests or releases.
+To make a request, type request(i,j,k)
+To make a release, type release(i,j,k)
+i = a process number, j = a resource number, k = # of units of resource j requested or released.
+Type exit to end program
+request(1,2,1)
+Request successful
+request(2,0,1)
+Request successful
+request(0,1,1)
+Request denied: Unsafe state ** Deadlock detected in unsafe version **
+request(2,1,1)
+Request successful
+exit
+
+Process finished with exit code 0
+ */
+
+// General demonstration of error handling
+/*
+Enter the number of processes:
+0
+-1
+1
+Enter the number of resources:
+0
+-1
+1
+Please specify the number of units for Resource #0
+0
+1
+Please specify the maximum claim of Process #0
+Resource #0:
+-1
+1
+
+System representation created, you may begin making requests or releases.
+To make a request, type request(i,j,k)
+To make a release, type release(i,j,k)
+i = a process number, j = a resource number, k = # of units of resource j requested or released.
+Type exit to end program
+request(0,0,1)
+Request successful
+release(0,0,1)
+Release successful.
+request(0,0,2)
+Requested failed: Units requested exceeds units available.
+release(0,0,2)
+Release failed: Number of units to release exceeds current allocation by process
+request(0,1,1)
+Request failed: Invalid process or resource number
+request(1,2,3)
+Request failed: Invalid process or resource number
+release(4,5,6)
+Release failed: Invalid process or resource number
+banana
+Invalid entry
+exit
+
+Process finished with exit code 0
+ */
