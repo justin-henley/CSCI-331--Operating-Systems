@@ -5,8 +5,6 @@ Author:         Justin Henley, jahenley@mail.fhsu.edu
 Date:           2021-04-15
  */
 
-// TODO SAMPLE RUN
-
 import java.util.Scanner;
 
 // Main class drives the interactive program
