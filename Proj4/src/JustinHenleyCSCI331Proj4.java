@@ -64,10 +64,38 @@ public class JustinHenleyCSCI331Proj4 {
     }
 
     // TODO add comments
-    // TODO fix return value and args
-    private static boolean LRUReplacement() {
-        // TODO complete
-        return false;
+    private static int LRUReplacement(ArrayList<Integer> rs, int numOfFrames) {
+        // All frames are empty
+        int[] frames = new int[numOfFrames];
+        // Index of first and a count of the number of page faults
+        int first = 0, numPageFaults = 0;
+
+        for (int i = 0; i < numOfFrames; i++) {
+            // No pages loaded yet
+            frames[i] = -1;
+        }
+
+        for(int i = 0; i < rs.size(); i++) {
+            int index = isInArray(frames, rs.get(i));
+            int most;  // most recently used page
+
+            if(index == -1) {  // Page fault
+                most = rs.get(i);
+                numPageFaults++;
+                index = 0;  // The first (least recently used) element will be removed
+            }
+            else
+                most = frames[index];  // The page that is most recently moved shall get moved to the end
+
+            // Shifts right side of array left, overwriting the position to be removed. Leaves last position unmodified
+            for(int j = index; j < frames.length - 1; j++) {
+                frames[j] = frames[j + 1];
+            }
+            // Adds the most recently used page to the end of the list, overwriting previous value
+            frames[frames.length - 1] = most;
+        }
+
+        return numPageFaults;
     }
 
     // TODO add comments
