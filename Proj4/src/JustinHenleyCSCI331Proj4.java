@@ -7,6 +7,7 @@ Date:           2021-05-06
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class JustinHenleyCSCI331Proj4 {
     // TODO add comments
@@ -100,9 +101,18 @@ public class JustinHenleyCSCI331Proj4 {
 
     // TODO add comments
     // TODO fix return value and args
-    private static boolean test() {
+    // TODO modify to include other algos
+    private static int[] test() {
         // TODO complete
-        return false;
+        int[] result = new int[2];  // Stores the reported number of page faults for each algorithm over the same reference string
+        // TODO this should generate a full rs, not this tiny mockery
+        ArrayList<Integer> rs = new ArrayList<Integer>(Arrays.asList(0,1,4,0,2,3,0,1,0,2,3,4,2,3));
+
+        // Apply the algorithms to the rs
+        result[0] = FIFOReplacement(rs, 4);
+        result[1] = LRUReplacement(rs, 4);
+
+        return result;
     }
 
     // TODO add comments
