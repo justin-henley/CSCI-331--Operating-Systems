@@ -39,12 +39,17 @@ public class JustinHenleyCSCI331Proj4 {
             ArrayList<Integer> rs = createRS(sizeOfVM, lengthOfRS, sizeOfLocus, rateOfMotion, prob);
 
             // Report results
-            // TODO expand for reporting other algorithms
+            // TODO make this more interesting with a horizontal bar graph
             System.out.println("The number of page faults using the FIFO replacement algorithm: ");
             System.out.println(FIFOReplacement(rs, numOfFrames));
             System.out.println("The number of page faults using the LRU replacement algorithm: ");
             System.out.println(LRUReplacement(rs, numOfFrames));
+            System.out.println("The number of page faults using the Optimal replacement algorithm: ");
+            System.out.println(OptimalReplacement(rs, numOfFrames));
+            System.out.println("The number of page faults using the Second Chance replacement algorithm: ");
+            System.out.println(SecondChanceReplacement(rs, numOfFrames));
 
+            // TODO remove this
             // Show a run of test function
             System.out.println("Test function result: " + Arrays.toString(test()));
 
@@ -86,7 +91,7 @@ public class JustinHenleyCSCI331Proj4 {
         // Index of oldest frame, count of page faults
         int oldest = 0, numPageFaults = 0;
 
-        // No page loaded
+        // No pages loaded yet
         Arrays.fill(frames, -1);
 
         for (Integer r : rs) {
@@ -106,13 +111,11 @@ public class JustinHenleyCSCI331Proj4 {
     private static int LRUReplacement(ArrayList<Integer> rs, int numOfFrames) {
         // All frames are empty
         int[] frames = new int[numOfFrames];
-        // Index of first and a count of the number of page faults
+        // Count of the number of page faults
         int numPageFaults = 0;
 
-        for (int i = 0; i < numOfFrames; i++) {
-            // No pages loaded yet
-            frames[i] = -1;
-        }
+        // No pages loaded yet
+        Arrays.fill(frames, -1);
 
         for (Integer r : rs) {
             int index = isInArray(frames, r);
@@ -130,6 +133,63 @@ public class JustinHenleyCSCI331Proj4 {
                 System.arraycopy(frames, index + 1, frames, index, frames.length - 1 - index);
             // Adds the most recently used page to the end of the list, overwriting previous value
             frames[frames.length - 1] = most;
+        }
+
+        return numPageFaults;
+    }
+
+    // TODO add comments
+    private static int OptimalReplacement(ArrayList<Integer> rs, int numOfFrames) {
+        // All frames are empty
+        int[] frames = new int[numOfFrames];
+        // Count of the number of page faults
+        int numPageFaults = 0;
+
+        // No pages loaded yet
+        Arrays.fill(frames, -1);
+
+
+        return numPageFaults;
+    }
+
+    // TODO add comments
+    private static int SecondChanceReplacement(ArrayList<Integer> rs, int numOfFrames) {
+        // All frames are empty
+        int[][] frames = new int[numOfFrames][2];
+        // Count of the number of page faults
+        int numPageFaults = 0;
+        // Pointer to the frame to be considered for replacement
+        int replace = 0;
+
+        // No pages loaded yet
+        for(int i = 0; i < frames.length; i++) {
+            frames[i][0] = -1;
+            frames[i][1] = 0;
+        }
+
+        for (Integer r : rs) {
+            int index = isInArray(frames, r);
+
+            if (index != -1) {
+                // If page is found in memory, set r-bit to 1
+                frames[index][1] = 1;
+            }
+            else {  // page is not in memory
+                numPageFaults++;  // Record page fault
+
+                // Iterate until a frame is found where r-bit is 0
+                while (frames[replace][1] == 1) {
+                    frames[replace][1] = 0;
+                    replace = (replace + 1) % frames.length;
+                }
+
+                // Once a suitable frame is found, replace
+                frames[replace][0] = r;
+                frames[replace][1] = 0;
+
+                // Increment replace
+                replace = (replace + 1) % frames.length;
+            }
         }
 
         return numPageFaults;
@@ -155,6 +215,14 @@ public class JustinHenleyCSCI331Proj4 {
     private static int isInArray(int[] frames, int page) {
         for(int i = 0; i < frames.length; i++) {
             if(frames[i] == page) return i;
+        }
+        return -1;
+    }
+
+    // TODO add comments, this one is for SecondChance
+    private  static int isInArray(int[][] frames, int page) {
+        for (int i = 0; i < frames.length; i++) {
+            if(frames[i][0] == page) return i;
         }
         return -1;
     }
