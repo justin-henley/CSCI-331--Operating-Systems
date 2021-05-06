@@ -45,9 +45,13 @@ public class JustinHenleyCSCI331Proj4 {
             System.out.println("The number of page faults using the LRU replacement algorithm: ");
             System.out.println(LRUReplacement(rs, numOfFrames));
 
+            // Show a run of test function
+            System.out.println("Test function result: " + Arrays.toString(test()));
+
             // Prompt for continuation
             System.out.println("Do you want to run another test? Y/N");
-            choice = input.nextLine().toUpperCase().charAt(0);
+            input.nextLine();  // Clear out newline character left in stream
+            choice = input.nextLine().toUpperCase().charAt(0);  // Take new input from user
         } while(choice == 'Y');
     }
 
@@ -55,7 +59,7 @@ public class JustinHenleyCSCI331Proj4 {
     // TODO fix return value and args
     private static ArrayList<Integer> createRS(int sizeOfVM, int length, int sizeOfLocus, int rateOfMotion, double prob) {
         // Create a new array list to store the reference string (RS)
-        ArrayList<Integer> result = new ArrayList<Integer>();
+        ArrayList<Integer> result = new ArrayList<>();
         int start = 0;
         int n;  // A page number in a reference string, declared out here for persistence across while iterations
 
@@ -66,9 +70,9 @@ public class JustinHenleyCSCI331Proj4 {
                 n = (int) (Math.random() * sizeOfLocus + start);
                 result.add(n);
             }
-            // Generate a random number between 0 and 1
+            // Generate a random number between 0 and 1 to decide whether to transition
             if (Math.random() < prob)
-                start = (int) Math.random() * sizeOfVM;
+                start = (int) (Math.random() * sizeOfVM);
             else
                 start = (start + 1) % sizeOfVM;
         }
@@ -82,15 +86,13 @@ public class JustinHenleyCSCI331Proj4 {
         // Index of oldest frame, count of page faults
         int oldest = 0, numPageFaults = 0;
 
-        for(int i = 0; i < frames.length; i++) {
-            // No page loaded
-            frames[i] = -1;
-        }
+        // No page loaded
+        Arrays.fill(frames, -1);
 
-        for(int i = 0; i < rs.size(); i++) {
+        for (Integer r : rs) {
             // Page fault
-            if(isInArray(frames, rs.get(i)) == -1) {
-                frames[oldest] = rs.get(i);  // Copy new page into oldest page frame
+            if (isInArray(frames, r) == -1) {
+                frames[oldest] = r;  // Copy new page into oldest page frame
                 numPageFaults++;  // Record this page fault
                 // Frames should be added sequentially, thus the next-oldest frame is the next one in the list
                 oldest = (oldest + 1) % (frames.length);
@@ -105,29 +107,27 @@ public class JustinHenleyCSCI331Proj4 {
         // All frames are empty
         int[] frames = new int[numOfFrames];
         // Index of first and a count of the number of page faults
-        int first = 0, numPageFaults = 0;
+        int numPageFaults = 0;
 
         for (int i = 0; i < numOfFrames; i++) {
             // No pages loaded yet
             frames[i] = -1;
         }
 
-        for(int i = 0; i < rs.size(); i++) {
-            int index = isInArray(frames, rs.get(i));
+        for (Integer r : rs) {
+            int index = isInArray(frames, r);
             int most;  // most recently used page
 
-            if(index == -1) {  // Page fault
-                most = rs.get(i);
+            if (index == -1) {  // Page fault
+                most = r;
                 numPageFaults++;
                 index = 0;  // The first (least recently used) element will be removed
-            }
-            else
+            } else
                 most = frames[index];  // The page that is most recently moved shall get moved to the end
 
             // Shifts right side of array left, overwriting the position to be removed. Leaves last position unmodified
-            for(int j = index; j < frames.length - 1; j++) {
-                frames[j] = frames[j + 1];
-            }
+            if (frames.length - 1 - index >= 0)
+                System.arraycopy(frames, index + 1, frames, index, frames.length - 1 - index);
             // Adds the most recently used page to the end of the list, overwriting previous value
             frames[frames.length - 1] = most;
         }
@@ -142,7 +142,7 @@ public class JustinHenleyCSCI331Proj4 {
         // TODO complete
         int[] result = new int[2];  // Stores the reported number of page faults for each algorithm over the same reference string
         // TODO this should generate a full rs, not this tiny mockery
-        ArrayList<Integer> rs = new ArrayList<Integer>(Arrays.asList(0,1,4,0,2,3,0,1,0,2,3,4,2,3));
+        ArrayList<Integer> rs = new ArrayList<>(Arrays.asList(0, 1, 4, 0, 2, 3, 0, 1, 0, 2, 3, 4, 2, 3));
 
         // Apply the algorithms to the rs
         result[0] = FIFOReplacement(rs, 4);
