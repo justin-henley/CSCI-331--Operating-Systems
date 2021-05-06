@@ -8,11 +8,46 @@ Date:           2021-05-06
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Scanner;
 
 public class JustinHenleyCSCI331Proj4 {
     // TODO add comments
     public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
 
+        int sizeOfVM, lengthOfRS, sizeOfLocus, rateOfMotion, numOfFrames;
+        double prob;
+        char choice;
+
+        do {
+            // Get user spec for test run
+            System.out.println("Enter size of virtual memory: ");
+            sizeOfVM = input.nextInt();
+            System.out.println("Enter length of reference string: ");
+            lengthOfRS = input.nextInt();
+            System.out.println("Enter size of locus: ");
+            sizeOfLocus = input.nextInt();
+            System.out.println("Enter rate of motion: ");
+            rateOfMotion = input.nextInt();
+            System.out.println("Enter probability of transition: ");
+            prob = input.nextDouble();
+            System.out.println("Enter number of frames: ");
+            numOfFrames = input.nextInt();
+
+            // Create the new reference string
+            ArrayList<Integer> rs = createRS(sizeOfVM, lengthOfRS, sizeOfLocus, rateOfMotion, prob);
+
+            // Report results
+            // TODO expand for reporting other algorithms
+            System.out.println("The number of page faults using the FIFO replacement algorithm: ");
+            System.out.println(FIFOReplacement(rs, numOfFrames));
+            System.out.println("The number of page faults using the LRU replacement algorithm: ");
+            System.out.println(LRUReplacement(rs, numOfFrames));
+
+            // Prompt for continuation
+            System.out.println("Do you want to run another test? Y/N");
+            choice = input.nextLine().toUpperCase().charAt(0);
+        } while(choice == 'Y');
     }
 
     // TODO add comments
