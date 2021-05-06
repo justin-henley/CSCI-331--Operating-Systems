@@ -6,6 +6,8 @@ Date:           2021-05-06
  */
 
 
+import java.util.ArrayList;
+
 public class JustinHenleyCSCI331Proj4 {
     // TODO add comments
     public static void main(String[] args) {
@@ -14,16 +16,51 @@ public class JustinHenleyCSCI331Proj4 {
 
     // TODO add comments
     // TODO fix return value and args
-    private static boolean createRS() {
-        // TODO complete
-        return false;
+    private static ArrayList<Integer> createRS(int sizeOfVM, int length, int sizeOfLocus, int rateOfMotion, double prob) {
+        // Create a new array list to store the reference string (RS)
+        ArrayList<Integer> result = new ArrayList<Integer>();
+        int start = 0;
+        int n;  // A page number in a reference string, declared out here for persistence across while iterations
+
+        // Repeat until desired size is reached
+        while(result.size() < length) {
+            // Add size of locus random number in it
+            for (int i = 0; i < rateOfMotion; i++) {
+                n = (int) (Math.random() * sizeOfLocus + start);
+                result.add(n);
+            }
+            // Generate a random number between 0 and 1
+            if (Math.random() < prob)
+                start = (int) Math.random() * sizeOfVM;
+            else
+                start = (start + 1) % sizeOfVM;
+        }
+        return result;
     }
 
     // TODO add comments
-    // TODO fix return value and args
-    private static boolean FIFOReplacement() {
-        // TODO complete
-        return false;
+    private static int FIFOReplacement(ArrayList<Integer> rs, int numOfFrames) {
+        // All frames are empty
+        int[] frames = new int[numOfFrames];
+        // Index of oldest frame, count of page faults
+        int oldest = 0, numPageFaults = 0;
+
+        for(int i = 0; i < frames.length; i++) {
+            // No page loaded
+            frames[i] = -1;
+        }
+
+        for(int i = 0; i < rs.size(); i++) {
+            // Page fault
+            if(isInArray(frames, rs.get(i)) == -1) {
+                frames[oldest] = rs.get(i);  // Copy new page into oldest page frame
+                numPageFaults++;  // Record this page fault
+                // Frames should be added sequentially, thus the next-oldest frame is the next one in the list
+                oldest = (oldest + 1) % (frames.length);
+            }
+        }
+
+        return numPageFaults;
     }
 
     // TODO add comments
