@@ -38,18 +38,28 @@ public class JustinHenleyCSCI331Proj4 {
 
             // Report results
             // TODO make this more interesting with a horizontal bar graph
+            // TODO clean this up
+            int fifo = FIFOReplacement(rs, numOfFrames);
+            int lru = LRUReplacement(rs, numOfFrames);
+            int optimal = OptimalReplacement(rs, numOfFrames);
+            int secondChance = SecondChanceReplacement(rs, numOfFrames);
+
             System.out.println("The number of page faults using the FIFO replacement algorithm: ");
-            System.out.println(FIFOReplacement(rs, numOfFrames));
+            System.out.println(fifo);
             System.out.println("The number of page faults using the LRU replacement algorithm: ");
-            System.out.println(LRUReplacement(rs, numOfFrames));
+            System.out.println(lru);
             System.out.println("The number of page faults using the Optimal replacement algorithm: ");
-            System.out.println(OptimalReplacement(rs, numOfFrames));
+            System.out.println(optimal);
             System.out.println("The number of page faults using the Second Chance replacement algorithm: ");
-            System.out.println(SecondChanceReplacement(rs, numOfFrames));
+            System.out.println(secondChance);
 
             // TODO remove this
             // Show a run of test function
             System.out.println("Test function result: " + Arrays.toString(test()));
+
+            // TODO move this?
+            // Print a bar graph comparing number of page faults
+            displayResults(optimal, lru, secondChance, fifo);
 
             // Prompt for continuation
             System.out.println("Do you want to run another test? Y/N");
@@ -265,5 +275,30 @@ public class JustinHenleyCSCI331Proj4 {
             if(frames[i][0] == page) return i;
         }
         return -1;
+    }
+
+    // TODO add comments
+    private static void displayResults(int opt, int lru, int sec, int fifo) {
+        // Process values so fifo is always 50
+        double x = fifo / 50.0;
+        opt /= x;
+        lru /= x;
+        sec /= x;
+        fifo = 50;
+        char barChar = '#';
+
+
+        System.out.println();
+        System.out.println("   Optimal: " + barGraph(opt, barChar));
+        System.out.println("       LRU: " + barGraph(lru, barChar));
+        System.out.println("2nd Chance: " + barGraph(sec, barChar));
+        System.out.println("      FIFO: " + barGraph(fifo, barChar));
+    }
+
+    private static String barGraph(int length, char c) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < length; i++)
+            sb.append(c);
+        return sb.toString();
     }
 }
