@@ -8,6 +8,7 @@ Date:           2021-05-06
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class JustinHenleyCSCI331Proj4 {
@@ -148,6 +149,36 @@ public class JustinHenleyCSCI331Proj4 {
         // No pages loaded yet
         Arrays.fill(frames, -1);
 
+        // Iterate over entire reference string.  Used traditional for loop to access index for forward-search
+        for (int pos = 0; pos < rs.size(); pos++) {
+            // Page fault
+            if (isInArray(frames, rs.get(pos)) == -1) {
+
+
+                // Create a sublist of the reference string beyond the current position, looking "into the future"
+                List<Integer> rsRemaining = rs.subList(pos, rs.size());
+
+                // Find distance to next reference of each frame, preserve the largest distance
+                int furthestFrameIndex = 0;
+                int furthestFrameDistance = 0;
+
+                for (int f = 0; f < frames.length; f++) {
+                    int page = frames[f];
+                    int nextReference = rsRemaining.indexOf(page);
+                    // If this is the furthest reference found, record it
+                    if (nextReference > furthestFrameDistance) {
+                        furthestFrameDistance = nextReference;
+                        furthestFrameIndex = f;
+                    }
+                }
+
+                // Replace the frame with the furthest subsequent reference in the reference string
+                frames[furthestFrameIndex] = rs.get(pos);
+                // Record page fault
+                numPageFaults++;
+            }
+        }
+
 
         return numPageFaults;
     }
@@ -200,13 +231,15 @@ public class JustinHenleyCSCI331Proj4 {
     // TODO modify to include other algos
     private static int[] test() {
         // TODO complete
-        int[] result = new int[2];  // Stores the reported number of page faults for each algorithm over the same reference string
+        int[] result = new int[4];  // Stores the reported number of page faults for each algorithm over the same reference string
         // TODO this should generate a full rs, not this tiny mockery
         ArrayList<Integer> rs = new ArrayList<>(Arrays.asList(0, 1, 4, 0, 2, 3, 0, 1, 0, 2, 3, 4, 2, 3));
 
         // Apply the algorithms to the rs
         result[0] = FIFOReplacement(rs, 4);
         result[1] = LRUReplacement(rs, 4);
+        result[2] = OptimalReplacement(rs, 4);
+        result[3] = SecondChanceReplacement(rs, 4);
 
         return result;
     }
