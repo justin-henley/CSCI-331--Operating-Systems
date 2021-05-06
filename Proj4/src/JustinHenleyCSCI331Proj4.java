@@ -6,10 +6,7 @@ Date:           2021-05-06
  */
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class JustinHenleyCSCI331Proj4 {
 
@@ -153,22 +150,30 @@ public class JustinHenleyCSCI331Proj4 {
         for (int pos = 0; pos < rs.size(); pos++) {
             // Page fault
             if (isInArray(frames, rs.get(pos)) == -1) {
+                // Create sublist of future references to search
+               List<Integer> futureRS = rs.subList(pos, rs.size());
 
+               int furthestFrameIndex = 0;
+               int furthestFrameDistance = 0;
 
-                // Create a sublist of the reference string beyond the current position, looking "into the future"
-                List<Integer> rsRemaining = rs.subList(pos, rs.size());
-
-                // Find distance to next reference of each frame, preserve the largest distance
-                int furthestFrameIndex = 0;
-                int furthestFrameDistance = 0;
-
-                for (int f = 0; f < frames.length; f++) {
+               // Check all frames for page referenced furthest in the future
+               // If a page is never referenced, it sets distance to -1 to exit search and replace that page in memory
+                for (int f = 0; f < frames.length && furthestFrameDistance != -1; f++) {
                     int page = frames[f];
-                    int nextReference = rsRemaining.indexOf(page);
-                    // If this is the furthest reference found, record it
-                    if (nextReference > furthestFrameDistance) {
-                        furthestFrameDistance = nextReference;
+                    int nextReference = futureRS.indexOf(page);
+
+                    // If no future reference occurs, this can be considered the furthest reference
+                    if (nextReference == -1) {
                         furthestFrameIndex = f;
+                        furthestFrameDistance = -1;
+                    }
+                    // If a future reference is found, check if it s the furthest
+                    else {
+                        // If this is the furthest reference found, record it
+                        if (nextReference > furthestFrameDistance) {
+                            furthestFrameDistance = nextReference;
+                            furthestFrameIndex = f;
+                        }
                     }
                 }
 
@@ -176,6 +181,8 @@ public class JustinHenleyCSCI331Proj4 {
                 frames[furthestFrameIndex] = rs.get(pos);
                 // Record page fault
                 numPageFaults++;
+
+
             }
         }
 
